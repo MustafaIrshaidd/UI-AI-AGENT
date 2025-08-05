@@ -1,0 +1,108 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy-backend-prod:
+    name: Deploy Backend to Production
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+        
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: poetry install --no-interaction --no-root
+      
+    - name: Run tests
+      working-directory: ./backend
+      run: poetry run pytest tests/ -v
+      
+    - name: Run security scan
+      working-directory: ./backend
+      run: |
+        poetry run bandit -r . -f json -o bandit-report.json || true
+        poetry run safety check --json --output safety-report.json || true
+        
+    - name: Deploy to Render (Production)
+      env:
+        RENDER_TOKEN: ${{ secrets.RENDER_TOKEN_PROD }}
+        RENDER_SERVICE_ID: ${{ secrets.RENDER_BACKEND_SERVICE_ID_PROD }}
+      run: |
+        curl -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+          -H "Authorization: Bearer $RENDER_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{"clearCache": "do_not_clear"}'
+      
+    - name: Wait for deployment
+      run: |
+        echo "Waiting for backend deployment to complete..."
+        sleep 60
+
+  deploy-frontend-prod:
+    name: Deploy Frontend to Production
+    runs-on: ubuntu-latest
+    environment: production
+    needs: deploy-backend-prod
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: Run security audit
+      working-directory: ./frontend
+      run: npm audit --audit-level=moderate
+      
+    - name: Build application
+      working-directory: ./frontend
+      env:
+        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL_PROD }}
+        NEXT_PUBLIC_ENVIRONMENT: production
+      run: npm run build
+      
+    - name: Deploy to Vercel (Production)
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_PROD }}
+        working-directory: ./frontend
+        vercel-args: '--prod'
+        
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "🚀 Production deployment completed successfully!"
+        echo "Frontend: ${{ secrets.FRONTEND_PROD_URL }}"
+        echo "Backend: ${{ secrets.BACKEND_PROD_URL }}" 

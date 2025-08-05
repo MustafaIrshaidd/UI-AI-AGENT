@@ -1,0 +1,24 @@
+# Global owners - these people will be the default owners for everything in the repo
+* @mustafairshaid
+
+# Backend specific ownership
+/backend/ @mustafairshaid
+
+# Frontend specific ownership  
+/frontend/ @mustafairshaid
+
+# GitHub Actions workflows
+/.github/workflows/ @mustafairshaid
+
+# Configuration files
+/pyproject.toml @mustafairshaid
+/package.json @mustafairshaid
+/tsconfig.json @mustafairshaid
+/next.config.ts @mustafairshaid
+
+# Documentation
+/README.md @mustafairshaid
+/docs/ @mustafairshaid
+
+# Environment files (if not in .gitignore)
+/.env* @mustafairshaid 
