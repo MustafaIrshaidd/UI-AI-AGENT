@@ -21,6 +21,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI with Poetry!"}
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "environment": os.environ.get("ENVIRONMENT", "development")}
