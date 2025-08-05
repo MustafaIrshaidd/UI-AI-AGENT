@@ -3,8 +3,8 @@
 ## Overview
 This repository uses GitHub Actions for continuous integration and deployment with the following workflow:
 
-- **Development**: `dev` branch → Development environment
-- **Production**: `main` branch → Production environment
+- **Development**: `dev` branch → Tests and linting only
+- **Production**: `main` branch → Production environment deployment
 - **Code Review**: All changes require pull request reviews
 
 ## Workflows
@@ -26,14 +26,14 @@ Runs on every push and pull request to `main` and `dev` branches.
 - Type checking with TypeScript
 - Build verification
 
-### 2. Deploy to Development (`deploy-dev.yml`)
+### 2. Development Tests (`deploy-dev.yml`)
 Triggers on pushes to `dev` branch.
 
 **Features:**
-- Automatic deployment to development environment
-- Backend deployment to Render (dev)
-- Frontend deployment to Vercel (dev)
-- Sequential deployment (backend first, then frontend)
+- Backend testing and linting
+- Frontend testing, linting, and build verification
+- No deployment (free tier limitation)
+- Quality assurance before production
 
 ### 3. Deploy to Production (`deploy-prod.yml`)
 Triggers on pushes to `main` branch.
@@ -131,22 +131,24 @@ BACKEND_PROD_URL=https://your-prod-backend.onrender.com
    - All CI checks must pass
 
 5. **Merge to Dev**
-   - Changes are automatically deployed to development
+   - Changes are tested and linted
    - Feature branch is automatically deleted after merge
+   - No deployment (free tier limitation)
 
 6. **Promote to Production**
    - Create PR from dev to main
    - Requires additional review
    - Manual approval for production deployment
-   - Dev branch changes are preserved (not deleted)
+   - Production deployment to Render and Vercel
 
 ## Environment Configuration
 
 ### Development Environment
-- Backend: Render (development service)
-- Frontend: Vercel (development project)
-- Database: Development database
+- Backend: Local testing only
+- Frontend: Local testing only
+- Database: Local development
 - Logging: Debug level
+- **Note**: No deployment due to free tier limitations
 
 ### Production Environment
 - Backend: Render (production service)

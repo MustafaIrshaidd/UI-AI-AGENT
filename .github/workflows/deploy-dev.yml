@@ -1,4 +1,4 @@
-name: Deploy to Development
+name: Development Tests
 
 on:
   push:
@@ -9,10 +9,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy-backend-dev:
-    name: Deploy Backend to Development
+  test-backend-dev:
+    name: Test Backend
     runs-on: ubuntu-latest
-    environment: development
     
     steps:
     - name: Checkout code
@@ -38,26 +37,15 @@ jobs:
       working-directory: ./backend
       run: poetry run pytest tests/ -v
       
-    - name: Deploy to Render (Development)
-      env:
-        RENDER_TOKEN: ${{ secrets.RENDER_TOKEN_DEV }}
-        RENDER_SERVICE_ID: ${{ secrets.RENDER_BACKEND_SERVICE_ID_DEV }}
+    - name: Run linting
+      working-directory: ./backend
       run: |
-        curl -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
-          -H "Authorization: Bearer $RENDER_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d '{"clearCache": "do_not_clear"}'
-      
-    - name: Wait for deployment
-      run: |
-        echo "Waiting for backend deployment to complete..."
-        sleep 60
+        poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-  deploy-frontend-dev:
-    name: Deploy Frontend to Development
+  test-frontend-dev:
+    name: Test Frontend
     runs-on: ubuntu-latest
-    environment: development
-    needs: deploy-backend-dev
     
     steps:
     - name: Checkout code
@@ -74,25 +62,21 @@ jobs:
       working-directory: ./frontend
       run: npm ci
       
+    - name: Run linting
+      working-directory: ./frontend
+      run: npm run lint
+      
+    - name: Run type checking
+      working-directory: ./frontend
+      run: npx tsc --noEmit
+      
     - name: Build application
       working-directory: ./frontend
-      env:
-        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL_DEV }}
-        NEXT_PUBLIC_ENVIRONMENT: development
       run: npm run build
       
-    - name: Deploy to Vercel (Development)
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_DEV }}
-        working-directory: ./frontend
-        vercel-args: '--prod'
-        
-    - name: Notify deployment success
+    - name: Notify test completion
       if: success()
       run: |
-        echo "🚀 Development deployment completed successfully!"
-        echo "Frontend: ${{ secrets.FRONTEND_DEV_URL }}"
-        echo "Backend: ${{ secrets.BACKEND_DEV_URL }}" 
+        echo "✅ Development tests completed successfully!"
+        echo "📝 Note: No deployment to development environment (requires paid plan)"
+        echo "🚀 Production deployment will be available when merging to main" 
