@@ -5,7 +5,7 @@ export default function HomeTest() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/some-endpoint`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}`)
       .then((res) => res.json())
       .then(setData)
       .catch(console.error);
