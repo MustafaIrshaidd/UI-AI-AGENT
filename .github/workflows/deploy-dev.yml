@@ -88,4 +88,11 @@ jobs:
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_DEV }}
         working-directory: ./frontend
-        vercel-args: '--prod' 
+        vercel-args: '--prod'
+        
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "🚀 Development deployment completed successfully!"
+        echo "Frontend: ${{ secrets.FRONTEND_DEV_URL }}"
+        echo "Backend: ${{ secrets.BACKEND_DEV_URL }}" 

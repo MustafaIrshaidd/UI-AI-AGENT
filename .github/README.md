@@ -45,6 +45,24 @@ Triggers on pushes to `main` branch.
 - Frontend deployment to Vercel (prod)
 - Deployment success notifications
 
+### 4. Branch Cleanup (`branch-cleanup.yml`)
+Triggers when pull requests are merged.
+
+**Features:**
+- Automatic deletion of merged feature branches
+- Protection of main and dev branches
+- Cleanup of stale branches
+- Safe deletion with error handling
+
+### 5. Scheduled Cleanup (`scheduled-cleanup.yml`)
+Runs weekly (Sundays at 2 AM UTC) or manually triggered.
+
+**Features:**
+- Generates branch cleanup reports
+- Identifies merged branches for deletion
+- Finds stale branches (older than 30 days)
+- Provides detailed cleanup recommendations
+
 ## Branch Protection Rules
 
 ### Main Branch
@@ -114,11 +132,13 @@ BACKEND_PROD_URL=https://your-prod-backend.onrender.com
 
 5. **Merge to Dev**
    - Changes are automatically deployed to development
+   - Feature branch is automatically deleted after merge
 
 6. **Promote to Production**
    - Create PR from dev to main
    - Requires additional review
    - Manual approval for production deployment
+   - Dev branch changes are preserved (not deleted)
 
 ## Environment Configuration
 

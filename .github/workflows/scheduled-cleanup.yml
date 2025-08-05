@@ -1,0 +1,58 @@
+name: Scheduled Branch Cleanup
+
+on:
+  schedule:
+    # Run every Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  cleanup-report:
+    name: Generate Cleanup Report
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+        
+    - name: Generate branch report
+      id: branch-report
+      run: |
+        echo "## Branch Cleanup Report" >> $GITHUB_STEP_SUMMARY
+        echo "Generated on: $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Get all remote branches
+        git fetch --prune
+        echo "### All Remote Branches:" >> $GITHUB_STEP_SUMMARY
+        git branch -r | grep -v "HEAD" | sed 's/origin\///' | while read branch; do
+          echo "- $branch" >> $GITHUB_STEP_SUMMARY
+        done
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Find merged branches
+        echo "### Merged Branches (candidates for deletion):" >> $GITHUB_STEP_SUMMARY
+        for branch in $(git branch -r | grep -v "origin/main" | grep -v "origin/dev" | grep -v "HEAD" | sed 's/origin\///'); do
+          if git branch -r --merged origin/main | grep -q "origin/$branch"; then
+            echo "- $branch ✅ (merged)" >> $GITHUB_STEP_SUMMARY
+          fi
+        done
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Find stale branches (older than 30 days)
+        echo "### Stale Branches (older than 30 days):" >> $GITHUB_STEP_SUMMARY
+        for branch in $(git branch -r | grep -v "origin/main" | grep -v "origin/dev" | grep -v "HEAD" | sed 's/origin\///'); do
+          last_commit_date=$(git log -1 --format="%cd" --date=short "origin/$branch")
+          days_old=$(( ( $(date +%s) - $(date -d "$last_commit_date" +%s) ) / 86400 ))
+          if [ $days_old -gt 30 ]; then
+            echo "- $branch (last commit: $last_commit_date, $days_old days old)" >> $GITHUB_STEP_SUMMARY
+          fi
+        done
+        
+    - name: Comment on issues
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        echo "Branch cleanup report generated. Check the Actions tab for details." 
