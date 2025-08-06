@@ -87,4 +87,41 @@ In development mode, you'll see:
 
 - Environment variables prefixed with `NEXT_PUBLIC_` are exposed to the client
 - Production builds include additional security headers
-- CORS is configured for both environments 
+- CORS is configured for both environments
+
+## Backend Configuration
+
+### Local Development
+
+Set these environment variables for your backend:
+
+```bash
+ENVIRONMENT=development
+FRONTEND_URL=http://localhost:3000
+```
+
+### Production (Render)
+
+Set these environment variables in your Render service:
+
+```bash
+ENVIRONMENT=production
+FRONTEND_URL=https://your-frontend-domain.com
+```
+
+## Testing the Configuration
+
+1. Start your backend: `cd backend && python main.py`
+2. Start your frontend: `cd frontend && npm run dev`
+3. Open http://localhost:3000
+4. Visit `/test-config` to verify your configuration
+5. Check browser console for environment logs
+
+## Environment Variable Reference
+
+| Variable | Description | Development | Production |
+|----------|-------------|-------------|------------|
+| `NEXT_PUBLIC_API_URL` | Backend API URL | `http://localhost:8000` | `https://ui-ai-agent.onrender.com` |
+| `NEXT_PUBLIC_ENVIRONMENT` | Environment name | `development` | `production` |
+| `ENVIRONMENT` | Backend environment | `development` | `production` |
+| `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:3000` | `https://your-frontend-domain.com` |
