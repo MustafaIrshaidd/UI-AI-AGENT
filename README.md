@@ -1,6 +1,6 @@
-# UI AI Agent
+# 🚀 UI AI Agent
 
-A full-stack web application with a FastAPI backend and Next.js frontend, featuring automated CI/CD pipeline with GitHub Actions.
+A modern web application with GraphQL API, PostgreSQL database, and beautiful dashboard interface. Features automated CI/CD pipeline with GitHub Actions.
 
 ## 🚀 Quick Start
 
@@ -8,6 +8,7 @@ A full-stack web application with a FastAPI backend and Next.js frontend, featur
 - Node.js 20+
 - Python 3.13+
 - Poetry (for backend dependencies)
+- Docker (for local database)
 
 ### Development Setup
 
@@ -17,37 +18,50 @@ A full-stack web application with a FastAPI backend and Next.js frontend, featur
    cd UI-AI-AGENT
    ```
 
-2. **Backend Setup**
+2. **Start everything (Full Stack):**
    ```bash
-   cd backend
-   poetry install
-   poetry run uvicorn main:app --reload
+   ./start.sh
    ```
 
-3. **Frontend Setup**
+3. **Or start services separately:**
    ```bash
+   # Backend only
+   cd backend
+   ./start-backend.sh
+   
+   # Frontend only (in another terminal)
    cd frontend
    npm install
    npm run dev
    ```
 
 4. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
+   - **Frontend**: http://localhost:3000
+   - **Backend**: http://localhost:8000
+   - **Dashboard**: http://localhost:8000/dashboard
+   - **GraphQL Playground**: http://localhost:8000/graphql
+   - **API Docs**: http://localhost:8000/docs
+   - **pgAdmin**: http://localhost:5050
 
 ## 🏗️ Project Structure
 
 ```
 UI-AI-AGENT/
-├── backend/                 # FastAPI backend
-│   ├── main.py             # Main application
-│   ├── tests/              # Backend tests
+├── backend/                 # FastAPI GraphQL API
+│   ├── src/
+│   │   ├── api/graphql/    # GraphQL schema & router
+│   │   ├── core/config/    # Database & production config
+│   │   ├── models/         # SQLModel entities
+│   │   └── ...
+│   ├── start-backend.sh    # Development script
+│   ├── requirements.txt    # Render compatibility
 │   └── pyproject.toml      # Python dependencies
 ├── frontend/               # Next.js frontend
 │   ├── app/                # Next.js app directory
 │   ├── components/         # React components
 │   └── package.json        # Node.js dependencies
+├── docker-compose.yml      # Local database setup
+├── render.yaml            # Production deployment
 └── .github/                # CI/CD configuration
     ├── workflows/          # GitHub Actions workflows
     └── README.md           # CI/CD documentation
@@ -71,13 +85,19 @@ This project features a comprehensive CI/CD pipeline with:
 
 ### 📚 Documentation
 
+- **[SETUP.md](./SETUP.md)** - Complete setup and deployment guide
 - **[CI/CD Setup Guide](.github/README.md)** - Complete pipeline documentation
 - **[Secrets Configuration](SECRETS_SETUP.md)** - Environment setup guide
+- **[API Documentation](http://localhost:8000/docs)** - Interactive API docs
+- **[GraphQL Schema](http://localhost:8000/graphql)** - Schema exploration
 
 ## 🛠️ Technologies
 
 ### Backend
 - **FastAPI** - Modern Python web framework
+- **Strawberry GraphQL** - Type-safe GraphQL implementation
+- **SQLModel** - SQLAlchemy-based ORM with Pydantic
+- **PostgreSQL** - Production-ready database
 - **Poetry** - Dependency management
 - **Pytest** - Testing framework
 - **Flake8** - Code linting
@@ -90,8 +110,9 @@ This project features a comprehensive CI/CD pipeline with:
 
 ### DevOps
 - **GitHub Actions** - CI/CD automation
-- **Render** - Backend hosting
+- **Render** - Backend hosting with PostgreSQL
 - **Vercel** - Frontend hosting
+- **Docker** - Local development containers
 
 ## 🧪 Testing
 
@@ -99,6 +120,17 @@ This project features a comprehensive CI/CD pipeline with:
 ```bash
 cd backend
 poetry run pytest tests/ -v
+```
+
+### GraphQL Testing
+```bash
+# Test GraphQL endpoint
+curl -X POST http://localhost:8000/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ hello }"}'
+
+# Test health endpoint
+curl http://localhost:8000/health
 ```
 
 ### Frontend Tests
@@ -111,10 +143,19 @@ npm run build
 
 ## 📦 Deployment
 
-The application is automatically deployed to production when changes are merged to the `main` branch.
+The application is automatically deployed to production through GitHub Actions when changes are merged to the `main` branch.
 
 - **Frontend**: https://ui-ai-agent-o535c0we7-mustafa-irshaids-projects.vercel.app
-- **Backend**: Check your Render dashboard for the URL
+- **Backend**: Automatically deployed to Render
+- **GraphQL Playground**: Available at `/graphql` endpoint
+- **Dashboard**: Available at `/dashboard` endpoint
+
+### Production Features
+- **PostgreSQL Database** - Managed by Render
+- **SSL Encryption** - Automatic HTTPS
+- **Environment Variables** - Secure configuration
+- **Auto-scaling** - Based on traffic
+- **CI/CD Pipeline** - Automated testing and deployment
 
 ## 🤝 Contributing
 

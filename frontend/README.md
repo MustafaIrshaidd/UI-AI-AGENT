@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UI AI Agent Frontend
 
-## Getting Started
+This is a [Next.js](https://nextjs.org/) frontend application for the UI AI Agent project.
 
-First, run the development server:
+## 🚀 Quick Start
+
+### 1. Environment Setup
+
+Run the setup script to configure your environment:
+
+```bash
+./scripts/setup-env.sh
+```
+
+Or manually create a `.env.local` file:
+
+```bash
+# Local Development
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_ENVIRONMENT=development
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Start Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🌍 Environment Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The frontend automatically switches between local and production environments based on your configuration:
 
-## Learn More
+- **Development**: Uses `http://localhost:8000` for backend API
+- **Production**: Uses your deployed backend URL (e.g., `https://your-backend.onrender.com`)
 
-To learn more about Next.js, take a look at the following resources:
+### Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Description | Development | Production |
+|----------|-------------|-------------|------------|
+| `NEXT_PUBLIC_API_URL` | Backend API URL | `http://localhost:8000` | `https://your-backend.onrender.com` |
+| `NEXT_PUBLIC_ENVIRONMENT` | Environment name | `development` | `production` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔧 API Integration
 
-## Deploy on Vercel
+The frontend includes a built-in API client that:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Automatically uses the correct backend URL based on environment
+- Handles CORS configuration
+- Provides health check and configuration endpoints
+- Supports GraphQL queries
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Usage Example
+
+```typescript
+import { api } from '@/src/lib/api';
+
+// Health check
+const health = await api.healthCheck();
+
+// GraphQL query
+const data = await api.graphql(`
+  query {
+    yourQuery {
+      field
+    }
+  }
+`);
+```
+
+## 🧪 Testing
+
+The application includes an API Test component that:
+
+- Shows current environment configuration
+- Tests API connectivity
+- Displays CORS configuration
+- Provides debugging information
+
+## 📦 Build and Deploy
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+### Deploy to Vercel
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Set environment variables in Vercel dashboard:
+   - `NEXT_PUBLIC_API_URL`: Your production backend URL
+   - `NEXT_PUBLIC_ENVIRONMENT`: `production`
+
+### Deploy to Other Platforms
+
+Set the same environment variables in your deployment platform. See `ENVIRONMENT_SETUP.md` for detailed instructions.
+
+## 📁 Project Structure
+
+```
+frontend/
+├── app/                    # Next.js app directory
+├── components/             # React components
+│   ├── ApiTest/           # API testing component
+│   └── HomeTest/          # Home page component
+├── src/
+│   ├── config/            # Environment configuration
+│   └── lib/               # Utility libraries
+│       └── api.ts         # API client
+├── scripts/               # Setup scripts
+└── ENVIRONMENT_SETUP.md   # Detailed setup guide
+```
+
+## 🔍 Troubleshooting
+
+### CORS Issues
+
+1. Check that your frontend URL is in the backend's allowed origins
+2. Verify environment variables are set correctly
+3. Restart both frontend and backend after changing environment variables
+
+### API Connection Issues
+
+1. Verify the API URL is correct
+2. Check that the backend is running
+3. Use the API Test component to debug configuration
+
+## 📚 Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Environment Setup Guide](./ENVIRONMENT_SETUP.md)
+- [API Client Documentation](./src/lib/api.ts)
