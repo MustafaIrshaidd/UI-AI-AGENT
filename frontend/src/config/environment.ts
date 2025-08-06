@@ -52,7 +52,7 @@ export const config: EnvironmentConfig = {
     "API_URL",
     detectedEnv === "development"
       ? "http://localhost:8000"
-      : "https://your-backend.onrender.com"
+      : process.env.NEXT_PUBLIC_API_URL || ""
   ),
   environment: detectedEnv,
   isDevelopment: detectedEnv === "development",
