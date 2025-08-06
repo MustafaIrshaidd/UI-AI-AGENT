@@ -44,43 +44,25 @@ class ProductionConfig:
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "production")
     
     # Development origins
+    # Port 3000: Main frontend development server (React/Next.js default)
     DEV_ORIGINS: list = [
-        "http://localhost:3000",
+        "http://localhost:3000",  # Main frontend with and without trailing slash
         "http://localhost:3000/",
         "http://127.0.0.1:3000",
-        "http://127.0.0.1:3000/",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-        "http://localhost:3002",
-        "http://127.0.0.1:3002"
+        "http://127.0.0.1:3000/"
     ]
-    
-    # Production origins - more flexible configuration
+    # Production origins - only use FRONTEND_URL
     PROD_ORIGINS: list = []
     
     # Add FRONTEND_URL from environment
-    if FRONTEND_URL and FRONTEND_URL != "http://localhost:3000":
-        PROD_ORIGINS.append(FRONTEND_URL)
-        # Also add with trailing slash
-        if not FRONTEND_URL.endswith('/'):
-            PROD_ORIGINS.append(f"{FRONTEND_URL}/")
-        else:
+    if FRONTEND_URL:
+        PROD_ORIGINS = [FRONTEND_URL]
+        # Also add version without trailing slash if FRONTEND_URL has one
+        # Or add version with trailing slash if FRONTEND_URL doesn't have one
+        if FRONTEND_URL.endswith('/'):
             PROD_ORIGINS.append(FRONTEND_URL.rstrip('/'))
-    
-    # Add additional origins from environment variable
-    ADDITIONAL_ORIGINS = os.getenv("ADDITIONAL_CORS_ORIGINS", "")
-    if ADDITIONAL_ORIGINS:
-        additional_list = [origin.strip() for origin in ADDITIONAL_ORIGINS.split(",") if origin.strip()]
-        PROD_ORIGINS.extend(additional_list)
-    
-    # Add common production domains if FRONTEND_URL is not set
-    if not PROD_ORIGINS:
-        PROD_ORIGINS = [
-            "https://ui-ai-agent.vercel.app",
-            "https://ui-ai-agent.vercel.app/",
-            "https://ui-ai-agent.netlify.app",
-            "https://ui-ai-agent.netlify.app/",
-        ]
+        else:
+            PROD_ORIGINS.append(f"{FRONTEND_URL}/")
     
     # Remove duplicates and filter out empty strings
     PROD_ORIGINS = list(set([origin for origin in PROD_ORIGINS if origin]))
