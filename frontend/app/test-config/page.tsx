@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { config, api } from '../../src/config/environment';
+import { config } from '../../src/config/environment';
+import { api } from '../../src/lib/api';
 
 export default function TestConfigPage() {
   const [apiStatus, setApiStatus] = useState<string>('Testing...');
