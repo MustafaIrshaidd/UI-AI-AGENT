@@ -40,6 +40,7 @@ const getEnvVar = (key: string, fallback: string): string => {
 
 // Environment configuration
 const detectedEnv = detectEnvironment();
+console.log('detectedEnv :', detectedEnv);
 export const config: EnvironmentConfig = {
   apiUrl: getEnvVar('API_URL', detectedEnv === 'development' ? 'http://localhost:8000' : 'https://your-backend.onrender.com'),
   environment: detectedEnv,
