@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { api } from '@/src/lib/api';
+import { api } from '../../src/lib';
 
 interface ApiResponse {
   message: string;
