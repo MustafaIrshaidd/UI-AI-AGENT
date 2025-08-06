@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
 
@@ -12,10 +13,20 @@ from src.api.graphql.dashboard import graphql_dashboard
 
 load_dotenv()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for startup and shutdown"""
+    # Startup
+    create_db_and_tables()
+    yield
+    # Shutdown
+    pass
+
 app = FastAPI(
     title="UI AI Agent API",
     description="A FastAPI application with GraphQL and PostgreSQL",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Use environment-specific configuration
@@ -43,11 +54,6 @@ app.include_router(graphql_app, prefix="/graphql")
 @app.get("/dashboard")
 async def dashboard():
     return await graphql_dashboard()
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup"""
-    create_db_and_tables()
 
 @app.get("/")
 def read_root():

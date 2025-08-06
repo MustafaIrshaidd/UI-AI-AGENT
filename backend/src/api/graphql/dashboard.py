@@ -15,7 +15,7 @@ def get_context(session: Session = Depends(get_session)):
 graphql_app = GraphQLRouter(
     schema,
     context_getter=get_context,
-    graphiql=True  # Enable GraphiQL playground
+    graphql_ide=True  # Enable GraphiQL playground
 )
 
 # Custom GraphQL dashboard HTML

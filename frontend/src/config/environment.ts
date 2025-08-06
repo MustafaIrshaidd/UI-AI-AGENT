@@ -11,7 +11,7 @@ export interface EnvironmentConfig {
 const getEnvVar = (key: string, fallback: string): string => {
   if (typeof window !== 'undefined') {
     // Client-side: use NEXT_PUBLIC_ prefixed variables
-    return (window as any).__NEXT_DATA__?.props?.env?.[key] || 
+    return (window as { __NEXT_DATA__?: { props?: { env?: Record<string, string> } } }).__NEXT_DATA__?.props?.env?.[key] || 
            process.env[`NEXT_PUBLIC_${key}`] || 
            fallback;
   }
