@@ -33,7 +33,9 @@ const nextConfig: NextConfig = {
   // Experimental features
   experimental: {
     // Enable server actions if needed
-    serverActions: true,
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
   },
 
   // Output configuration
