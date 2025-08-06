@@ -62,6 +62,9 @@ wheels/
 *.egg
 MANIFEST
 
+# Don't ignore frontend lib folders
+!frontend/src/lib/
+
 # PyInstaller
 *.manifest
 *.spec
