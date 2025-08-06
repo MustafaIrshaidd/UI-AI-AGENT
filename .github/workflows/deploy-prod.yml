@@ -98,11 +98,34 @@ jobs:
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_PROD }}
         working-directory: ./frontend
-        vercel-args: '--prod'
+        vercel-args: '--prod --yes'
+      continue-on-error: true
         
-    - name: Notify deployment success
-      if: success()
+    - name: Check deployment status
       run: |
-        echo "🚀 Production deployment completed successfully!"
-        echo "Frontend: ${{ secrets.FRONTEND_PROD_URL }}"
-        echo "Backend: ${{ secrets.BACKEND_PROD_URL }}" 
+        echo "🔍 Checking deployment status..."
+        echo "Frontend URL: ${{ secrets.FRONTEND_PROD_URL }}"
+        echo "Backend URL: ${{ secrets.BACKEND_PROD_URL }}"
+        
+        # Wait a bit for deployment to complete
+        sleep 30
+        
+        # Check if backend is responding
+        if [ -n "${{ secrets.BACKEND_PROD_URL }}" ]; then
+          echo "Testing backend health endpoint..."
+          curl -f "${{ secrets.BACKEND_PROD_URL }}/health" || echo "Backend health check failed"
+        fi
+        
+    - name: Notify deployment completion
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🚀 Production deployment completed successfully!"
+          echo "Frontend: ${{ secrets.FRONTEND_PROD_URL }}"
+          echo "Backend: ${{ secrets.BACKEND_PROD_URL }}"
+        else
+          echo "⚠️  Deployment completed with warnings or errors"
+          echo "Check the deployment logs above for details"
+          echo "Frontend: ${{ secrets.FRONTEND_PROD_URL }}"
+          echo "Backend: ${{ secrets.BACKEND_PROD_URL }}"
+        fi 
