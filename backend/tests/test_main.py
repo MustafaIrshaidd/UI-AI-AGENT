@@ -16,7 +16,7 @@ def test_read_root():
     assert response.status_code == 200
     data = response.json()
     assert "message" in data
-    assert "Hello from FastAPI with Poetry!" in data["message"]
+    assert "Hello from FastAPI with GraphQL and PostgreSQL!" in data["message"]
 
 
 def test_health_check():
