@@ -7,6 +7,25 @@ export interface EnvironmentConfig {
   isProduction: boolean;
 }
 
+// Automatically detect environment based on hostname and NODE_ENV
+const detectEnvironment = (): 'development' | 'production' => {
+  if (typeof window !== 'undefined') {
+    // Check hostname for localhost/development environments
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'development';
+    }
+  }
+  
+  // Check NODE_ENV (Vercel sets this to 'production')
+  if (process.env.NODE_ENV === 'production') {
+    return 'production';
+  }
+
+  // Default to development
+  return 'development';
+};
+
 // Get environment variables with fallbacks
 const getEnvVar = (key: string, fallback: string): string => {
   if (typeof window !== 'undefined') {
@@ -20,11 +39,12 @@ const getEnvVar = (key: string, fallback: string): string => {
 };
 
 // Environment configuration
+const detectedEnv = detectEnvironment();
 export const config: EnvironmentConfig = {
-  apiUrl: getEnvVar('API_URL', 'http://localhost:8000'),
-  environment: (getEnvVar('ENVIRONMENT', 'development') as 'development' | 'production'),
-  isDevelopment: getEnvVar('ENVIRONMENT', 'development') === 'development',
-  isProduction: getEnvVar('ENVIRONMENT', 'development') === 'production',
+  apiUrl: getEnvVar('API_URL', detectedEnv === 'development' ? 'http://localhost:8000' : 'https://your-backend.onrender.com'),
+  environment: detectedEnv,
+  isDevelopment: detectedEnv === 'development',
+  isProduction: detectedEnv === 'production',
 };
 
 // Helper functions
@@ -41,4 +61,4 @@ if (typeof window !== 'undefined') {
     isProduction: config.isProduction,
     nodeEnv: process.env.NODE_ENV,
   });
-} 
+}
