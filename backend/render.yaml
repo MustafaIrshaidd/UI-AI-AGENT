@@ -18,7 +18,13 @@ services:
           name: ui-ai-agent-db
           property: connectionString
       - key: FRONTEND_URL
-        value: https://your-frontend-domain.com
+        value: https://ui-ai-agent.vercel.app
+      - key: DEBUG
+        value: false
+      - key: LOG_LEVEL
+        value: INFO
+      - key: SECRET_KEY
+        value: ptp9hdwavYXXS-YJcSp0ptD2uNYSXg32ouD6qxP6iOM
 
 databases:
   - name: ui-ai-agent-db

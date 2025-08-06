@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 # Import database and GraphQL components
-from src.core.config.database import create_db_and_tables
+from src.core.config.database import create_db_and_tables, engine
 from src.core.config.production import ProductionConfig
 from src.core.config.development import DevelopmentConfig
 from src.api.graphql.router import graphql_app
@@ -71,6 +71,30 @@ def health_check():
         "database_connected": "postgresql" in config.get_database_url(),
         "version": "1.0.0"
     }
+
+@app.get("/db-test")
+def test_database_connection():
+    """Test database connection and return detailed status"""
+    try:
+        # Test the connection
+        with engine.connect() as connection:
+            result = connection.execute("SELECT 1")
+            result.fetchone()
+        
+        return {
+            "status": "success",
+            "message": "Database connection successful",
+            "database_url": config.get_database_url()[:50] + "...",
+            "environment": config.ENVIRONMENT
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Database connection failed: {str(e)}",
+            "database_url": config.get_database_url()[:50] + "...",
+            "environment": config.ENVIRONMENT,
+            "error_type": type(e).__name__
+        }
 
 @app.get("/cors-config")
 def cors_config():
