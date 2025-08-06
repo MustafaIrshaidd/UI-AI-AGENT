@@ -6,6 +6,8 @@ class DevelopmentConfig:
     
     # Database configuration
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5434/ui_ai_agent")
+
+    print("hello", DATABASE_URL)
     
     # API configuration
     API_HOST: str = os.getenv("API_HOST", "0.0.0.0")

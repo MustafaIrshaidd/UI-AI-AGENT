@@ -19,6 +19,8 @@ services:
           property: connectionString
       - key: FRONTEND_URL
         value: https://ui-ai-agent.vercel.app
+      - key: ADDITIONAL_CORS_ORIGINS
+        value: https://ui-ai-agent.netlify.app,https://ui-ai-agent.netlify.app/
       - key: DEBUG
         value: false
       - key: LOG_LEVEL

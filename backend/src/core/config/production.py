@@ -55,12 +55,32 @@ class ProductionConfig:
         "http://127.0.0.1:3002"
     ]
     
-    # Production origins - add your actual frontend domains here
-    PROD_ORIGINS: list = [
-        FRONTEND_URL,  # From environment variable
-        "https://ui-ai-agent.vercel.app",  # Vercel frontend
-        "https://ui-ai-agent.vercel.app/",  # Vercel frontend with trailing slash
-    ]
+    # Production origins - more flexible configuration
+    PROD_ORIGINS: list = []
+    
+    # Add FRONTEND_URL from environment
+    if FRONTEND_URL and FRONTEND_URL != "http://localhost:3000":
+        PROD_ORIGINS.append(FRONTEND_URL)
+        # Also add with trailing slash
+        if not FRONTEND_URL.endswith('/'):
+            PROD_ORIGINS.append(f"{FRONTEND_URL}/")
+        else:
+            PROD_ORIGINS.append(FRONTEND_URL.rstrip('/'))
+    
+    # Add additional origins from environment variable
+    ADDITIONAL_ORIGINS = os.getenv("ADDITIONAL_CORS_ORIGINS", "")
+    if ADDITIONAL_ORIGINS:
+        additional_list = [origin.strip() for origin in ADDITIONAL_ORIGINS.split(",") if origin.strip()]
+        PROD_ORIGINS.extend(additional_list)
+    
+    # Add common production domains if FRONTEND_URL is not set
+    if not PROD_ORIGINS:
+        PROD_ORIGINS = [
+            "https://ui-ai-agent.vercel.app",
+            "https://ui-ai-agent.vercel.app/",
+            "https://ui-ai-agent.netlify.app",
+            "https://ui-ai-agent.netlify.app/",
+        ]
     
     # Remove duplicates and filter out empty strings
     PROD_ORIGINS = list(set([origin for origin in PROD_ORIGINS if origin]))
@@ -87,4 +107,6 @@ class ProductionConfig:
     @classmethod
     def get_cors_origins(cls) -> list:
         """Get allowed CORS origins"""
-        return cls.ALLOWED_ORIGINS 
+        origins = cls.ALLOWED_ORIGINS
+        print(f"CORS Origins configured: {origins}")
+        return origins 

@@ -38,9 +38,13 @@ else:
 print(f"Environment: {config.ENVIRONMENT}")
 print(f"Database URL: {config.get_database_url()[:50]}...")
 
+# Get CORS origins
+cors_origins = config.get_cors_origins()
+print(f"Setting up CORS with origins: {cors_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=config.get_cors_origins(),
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
@@ -104,12 +108,20 @@ def cors_config():
         "allowed_origins": config.get_cors_origins(),
         "environment": config.ENVIRONMENT,
         "frontend_url": config.FRONTEND_URL,
+        "additional_origins": os.getenv("ADDITIONAL_CORS_ORIGINS", ""),
         "cors_enabled": True,
         "allow_credentials": True,
         "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
         "allow_headers": ["*"],
         "expose_headers": ["*"],
-        "max_age": 86400
+        "max_age": 86400,
+        "debug_info": {
+            "environment_vars": {
+                "ENVIRONMENT": os.getenv("ENVIRONMENT"),
+                "FRONTEND_URL": os.getenv("FRONTEND_URL"),
+                "ADDITIONAL_CORS_ORIGINS": os.getenv("ADDITIONAL_CORS_ORIGINS"),
+            }
+        }
     }
 
 @app.options("/{full_path:path}")

@@ -5,16 +5,26 @@ import os
 import time
 from typing import Generator
 from .production import ProductionConfig
+from .development import DevelopmentConfig
 
-# Get database URL from production config
-DATABASE_URL = ProductionConfig.get_database_url()
+# Get database URL based on environment
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+if ENVIRONMENT.lower() == "production":
+    DATABASE_URL = ProductionConfig.get_database_url()
+else:
+    DATABASE_URL = DevelopmentConfig.get_database_url()
 
 print(f"Initializing database connection to: {DATABASE_URL[:50]}...")
 
-# Create engine with production-optimized settings
+# Create engine with environment-appropriate settings
+if ENVIRONMENT.lower() == "production":
+    config = ProductionConfig
+else:
+    config = DevelopmentConfig
+
 engine = create_engine(
     DATABASE_URL,
-    echo=ProductionConfig.DEBUG,  # Only echo in debug mode
+    echo=config.DEBUG,  # Only echo in debug mode
     pool_pre_ping=True,  # Verify connections before use
     pool_recycle=300,  # Recycle connections every 5 minutes
     pool_timeout=30,  # Wait up to 30 seconds for a connection

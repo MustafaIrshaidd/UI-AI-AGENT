@@ -20,14 +20,14 @@ A modern web application with GraphQL API, PostgreSQL database, and beautiful da
 
 2. **Start everything (Full Stack):**
    ```bash
-   ./start.sh
+   ./scripts/start.sh
    ```
 
 3. **Or start services separately:**
    ```bash
    # Backend only
    cd backend
-   ./start-backend.sh
+   ./scripts/start-backend.sh
    
    # Frontend only (in another terminal)
    cd frontend
@@ -53,13 +53,15 @@ UI-AI-AGENT/
 │   │   ├── core/config/    # Database & production config
 │   │   ├── models/         # SQLModel entities
 │   │   └── ...
-│   ├── start-backend.sh    # Development script
+│   ├── scripts/            # Backend utility scripts
 │   ├── requirements.txt    # Render compatibility
 │   └── pyproject.toml      # Python dependencies
 ├── frontend/               # Next.js frontend
 │   ├── app/                # Next.js app directory
 │   ├── components/         # React components
+│   ├── scripts/            # Frontend utility scripts
 │   └── package.json        # Node.js dependencies
+├── scripts/                # Project-wide scripts
 ├── docker-compose.yml      # Local database setup
 ├── render.yaml            # Production deployment
 └── .github/                # CI/CD configuration
@@ -77,6 +79,38 @@ This project features a comprehensive CI/CD pipeline with:
 - **Branch Protection**: Code review requirements and status checks
 - **Automatic Cleanup**: Merged branches are automatically deleted
 
+## 🔧 CORS Configuration
+
+The application includes robust CORS configuration for production deployment:
+
+- **Environment-aware**: Automatically switches between development and production settings
+- **Flexible origins**: Supports multiple frontend domains via environment variables
+- **Debug endpoints**: Built-in CORS configuration inspection
+- **Comprehensive testing**: CORS test scripts for deployment verification
+
+### Environment Variables for CORS
+
+```bash
+# Required for production
+ENVIRONMENT=production
+FRONTEND_URL=https://your-frontend-domain.com
+
+# Optional: Additional domains
+ADDITIONAL_CORS_ORIGINS=https://staging.domain.com,https://admin.domain.com
+```
+
+### Testing CORS
+
+```bash
+# Test CORS configuration
+python backend/test_cors_deployment.py https://your-backend.onrender.com https://your-frontend.vercel.app
+
+# Check CORS config endpoint
+curl https://your-backend.onrender.com/cors-config
+```
+
+For detailed CORS troubleshooting, see [CORS_TROUBLESHOOTING.md](./backend/CORS_TROUBLESHOOTING.md).
+
 ### 📋 Workflow
 
 1. **Feature Branch** → **Tests** → **PR to Dev**
@@ -90,6 +124,28 @@ This project features a comprehensive CI/CD pipeline with:
 - **[Secrets Configuration](SECRETS_SETUP.md)** - Environment setup guide
 - **[API Documentation](http://localhost:8000/docs)** - Interactive API docs
 - **[GraphQL Schema](http://localhost:8000/graphql)** - Schema exploration
+
+## 📁 Scripts Organization
+
+The project uses a well-organized script structure for easy management:
+
+### Project-wide Scripts (`/scripts/`)
+- `start.sh` - Start the entire application stack
+- `stop.sh` - Stop all services and clean up
+
+### Backend Scripts (`/backend/scripts/`)
+- Database management (start, stop, reset)
+- Development server management
+- Build and deployment scripts
+
+### Frontend Scripts (`/frontend/scripts/`)
+- Environment setup and switching
+- Configuration management
+
+For detailed script documentation, see:
+- [Project Scripts](./scripts/README.md)
+- [Backend Scripts](./backend/scripts/README.md)
+- [Frontend Scripts](./frontend/scripts/README.md)
 
 ## 🛠️ Technologies
 

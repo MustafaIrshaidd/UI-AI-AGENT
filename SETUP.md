@@ -21,13 +21,13 @@ Complete setup guide for the UI AI Agent with GraphQL API and PostgreSQL databas
 
 2. **Start everything (Full Stack):**
    ```bash
-   ./start.sh
+   ./scripts/start.sh
    ```
 
 3. **Or start backend only:**
    ```bash
    cd backend
-   ./start-backend.sh
+   ./scripts/start-backend.sh
    ```
 
 4. **Access services:**
@@ -55,13 +55,12 @@ UI-AI-AGENT/
 │   │   ├── core/config/          # Database & production config
 │   │   ├── models/entities/      # SQLModel entities
 │   │   └── ...
-│   ├── start-backend.sh          # Local development script
-│   ├── start-database.sh         # Database only script
-│   ├── stop-database.sh          # Stop database
-│   ├── reset-database.sh         # Reset database
+│   ├── scripts/                  # Backend utility scripts
 │   ├── requirements.txt          # Render compatibility
 │   └── pyproject.toml           # Poetry dependencies
 ├── frontend/                     # React/Next.js frontend
+│   └── scripts/                  # Frontend utility scripts
+├── scripts/                      # Project-wide scripts
 ├── docker-compose.yml           # Local PostgreSQL setup
 ├── .github/                     # GitHub Actions CI/CD
 └── README.md                    # Project documentation
@@ -73,19 +72,19 @@ UI-AI-AGENT/
 
 | Script | Location | Purpose | Usage |
 |--------|----------|---------|-------|
-| `start.sh` | Project root | Full stack (DB + API + Frontend) | `./start.sh` |
-| `stop.sh` | Project root | Stop all services | `./stop.sh` |
-| `start-backend.sh` | `backend/` | Backend only (DB + API) | `cd backend && ./start-backend.sh` |
-| `start-database.sh` | `backend/` | Database only | `cd backend && ./start-database.sh` |
-| `stop-database.sh` | `backend/` | Stop database | `cd backend && ./stop-database.sh` |
-| `reset-database.sh` | `backend/` | Fresh database | `cd backend && ./reset-database.sh` |
+| `start.sh` | `scripts/` | Full stack (DB + API + Frontend) | `./scripts/start.sh` |
+| `stop.sh` | `scripts/` | Stop all services | `./scripts/stop.sh` |
+| `start-backend.sh` | `backend/scripts/` | Backend only (DB + API) | `cd backend && ./scripts/start-backend.sh` |
+| `start-database.sh` | `backend/scripts/` | Database only | `cd backend && ./scripts/start-database.sh` |
+| `stop-database.sh` | `backend/scripts/` | Stop database | `cd backend && ./scripts/stop-database.sh` |
+| `reset-database.sh` | `backend/scripts/` | Fresh database | `cd backend && ./scripts/reset-database.sh` |
 
 ### Manual Setup
 
 ```bash
 # 1. Start database
 cd backend
-./start-database.sh
+./scripts/start-database.sh
 
 # 2. Install dependencies
 poetry install

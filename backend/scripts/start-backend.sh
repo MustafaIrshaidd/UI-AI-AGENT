@@ -11,6 +11,14 @@ fi
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
     echo "❌ Docker is not running. Please start Docker first."
+    echo "💡 On macOS, you can start Docker Desktop from Applications or run:"
+    echo "   open -a Docker"
+    exit 1
+fi
+
+# Check if Docker Compose is available
+if ! command -v docker compose &> /dev/null; then
+    echo "❌ Docker Compose is not available. Please install Docker Compose."
     exit 1
 fi
 
@@ -18,9 +26,30 @@ fi
 echo "📦 Checking Docker containers..."
 if ! cd .. && docker compose ps | grep -q "ui_ai_agent_postgres.*Up"; then
     echo "🐘 Starting PostgreSQL and pgAdmin..."
-    cd .. && docker compose up -d
+    cd .. && docker compose up -d postgres pgadmin
+    
+    # Wait for PostgreSQL to be ready
     echo "⏳ Waiting for PostgreSQL to be ready..."
-    sleep 10
+    max_attempts=30
+    attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+        if docker compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; then
+            echo "✅ PostgreSQL is ready!"
+            break
+        fi
+        
+        attempt=$((attempt + 1))
+        echo "⏳ Waiting for PostgreSQL... (attempt $attempt/$max_attempts)"
+        sleep 2
+    done
+    
+    if [ $attempt -eq $max_attempts ]; then
+        echo "❌ PostgreSQL failed to start within expected time."
+        echo "💡 Check Docker logs: docker compose logs postgres"
+        exit 1
+    fi
+    
     cd backend
 else
     echo "✅ PostgreSQL and pgAdmin are already running"
