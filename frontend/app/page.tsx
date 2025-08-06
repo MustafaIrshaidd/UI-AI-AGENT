@@ -1,11 +1,31 @@
 import HomeTest from "@/components/HomeTest/HomeTest";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <HomeTest />
+        
+        {/* Environment Status */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 w-full max-w-md">
+          <h3 className="text-lg font-semibold text-blue-900 mb-2">🚀 UI AI Agent</h3>
+          <p className="text-blue-700 text-sm mb-3">
+            AI-powered job search and application assistant
+          </p>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-blue-600">Environment:</span>
+              <span className="font-mono text-blue-800">Development</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-blue-600">API:</span>
+              <span className="font-mono text-blue-800">localhost:8000</span>
+            </div>
+          </div>
+        </div>
+
         <Image
           className="dark:invert"
           src="/next.svg"
@@ -14,6 +34,7 @@ export default function Home() {
           height={38}
           priority
         />
+        
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{" "}
@@ -28,6 +49,12 @@ export default function Home() {
         </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
+          <Link
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-green-600 text-white gap-2 hover:bg-green-700 font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+            href="/test-config"
+          >
+            🔧 Test Configuration
+          </Link>
           <a
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"

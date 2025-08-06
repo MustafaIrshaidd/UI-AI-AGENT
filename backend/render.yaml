@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: ui-ai-agent-backend
+    env: python
+    plan: free
+    buildCommand: |
+      pip install poetry
+      poetry config virtualenvs.create false
+      poetry install --no-dev
+    startCommand: poetry run uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ui-ai-agent-db
+          property: connectionString
+      - key: FRONTEND_URL
+        value: https://your-frontend-domain.com
+
+databases:
+  - name: ui-ai-agent-db
+    databaseName: ui_ai_agent
+    user: ui_ai_agent_user
+    plan: free 
