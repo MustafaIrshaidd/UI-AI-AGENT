@@ -62,4 +62,4 @@ if (typeof window !== 'undefined') {
     isProduction: config.isProduction,
     nodeEnv: process.env.NODE_ENV,
   });
-}
+} 
