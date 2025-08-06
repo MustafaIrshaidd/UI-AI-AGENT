@@ -40,6 +40,13 @@ const nextConfig: NextConfig = {
 
   // Output configuration
   output: 'standalone',
+
+  // Environment-specific configurations
+  ...(process.env.NODE_ENV === 'production' && {
+    // Production-specific settings
+    compress: true,
+    poweredByHeader: false,
+  }),
 };
 
 export default nextConfig;

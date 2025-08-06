@@ -1,99 +1,90 @@
-# Environment Setup Guide
+# Frontend Environment Setup
 
-This guide explains how to configure environment variables for different deployment environments.
+This document explains how to configure the frontend to work with different backend environments.
 
-## Local Development
+## 🚀 Quick Start
 
-Create a `.env.local` file in the frontend directory:
-
+### Development (Local)
 ```bash
-# Local Development Environment
+# Switch to development environment
+npm run env:dev
+
+# Start development server
+npm run dev
+```
+
+### Production (Deploy)
+```bash
+# Switch to production environment
+npm run env:prod
+
+# Build for production
+npm run build
+npm run start
+```
+
+## 📁 Environment Files
+
+### `.env` (Development - Default)
+```bash
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_ENVIRONMENT=development
 ```
 
-## Production Deployment
-
-### Vercel Deployment
-
-1. Go to your Vercel project dashboard
-2. Navigate to Settings > Environment Variables
-3. Add the following variables:
-
-```
-NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
-NEXT_PUBLIC_ENVIRONMENT=production
-```
-
-### Netlify Deployment
-
-1. Go to your Netlify site dashboard
-2. Navigate to Site settings > Environment variables
-3. Add the following variables:
-
-```
-NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
-NEXT_PUBLIC_ENVIRONMENT=production
-```
-
-### Other Platforms
-
-Set the same environment variables in your deployment platform:
-
-```
-NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
-NEXT_PUBLIC_ENVIRONMENT=production
-```
-
-## Backend Configuration
-
-### Local Development
-
-Set these environment variables for your backend:
-
+### `.env.production` (Production)
 ```bash
-ENVIRONMENT=development
-FRONTEND_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=https://ui-ai-agent.onrender.com
+NEXT_PUBLIC_ENVIRONMENT=production
 ```
 
-### Production (Render)
+## 🔧 Available Scripts
 
-Set these environment variables in your Render service:
+| Script | Description |
+|--------|-------------|
+| `npm run env:dev` | Switch to development environment |
+| `npm run env:prod` | Switch to production environment |
+| `npm run env:status` | Show current API URL |
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
 
-```bash
-ENVIRONMENT=production
-FRONTEND_URL=https://your-frontend-domain.com
-```
+## 🌐 Environment Detection
 
-## Testing the Configuration
+The frontend automatically detects the environment and configures:
 
-1. Start your backend: `cd backend && python main.py`
-2. Start your frontend: `cd frontend && npm run dev`
-3. Open http://localhost:3000
-4. The API Test component will show your current configuration
-5. Click "Test API Connection" to verify everything works
+- **API URL**: Points to localhost:8000 in development, Render URL in production
+- **CORS**: Configured for cross-origin requests
+- **Logging**: Enhanced logging in development mode
+- **Security**: Production-specific security headers
 
-## Troubleshooting
+## 🔍 Visual Indicators
 
-### CORS Issues
+In development mode, you'll see:
+- Environment status indicator in bottom-right corner
+- Console logs showing current configuration
+- API URL displayed in the UI
 
-If you encounter CORS errors:
-
-1. Check that your frontend URL is in the backend's allowed origins
-2. Verify the environment variables are set correctly
-3. Restart both frontend and backend after changing environment variables
+## 🚨 Troubleshooting
 
 ### API Connection Issues
+1. Check if backend is running: `http://localhost:8000/health`
+2. Verify environment: `npm run env:status`
+3. Check browser console for configuration logs
 
-1. Verify the API URL is correct
-2. Check that the backend is running
-3. Ensure the backend is accessible from your frontend's domain
+### Environment Not Updating
+1. Restart the development server after switching environments
+2. Clear browser cache
+3. Check `.env` file contents
 
-## Environment Variable Reference
+## 📡 Backend URLs
 
-| Variable | Description | Development | Production |
-|----------|-------------|-------------|------------|
-| `NEXT_PUBLIC_API_URL` | Backend API URL | `http://localhost:8000` | `https://your-backend.onrender.com` |
-| `NEXT_PUBLIC_ENVIRONMENT` | Environment name | `development` | `production` |
-| `ENVIRONMENT` | Backend environment | `development` | `production` |
-| `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:3000` | `https://your-frontend-domain.com` | 
+| Environment | Backend URL | Status |
+|-------------|-------------|--------|
+| Development | `http://localhost:8000` | Local |
+| Production | `https://ui-ai-agent.onrender.com` | Render |
+
+## 🔐 Security Notes
+
+- Environment variables prefixed with `NEXT_PUBLIC_` are exposed to the client
+- Production builds include additional security headers
+- CORS is configured for both environments 

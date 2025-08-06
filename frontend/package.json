@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "env:dev": "./scripts/switch-env.sh development",
+    "env:prod": "./scripts/switch-env.sh production",
+    "env:status": "echo 'Current API URL:' && grep '^NEXT_PUBLIC_API_URL=' .env | cut -d'=' -f2"
   },
   "dependencies": {
     "react": "19.1.0",

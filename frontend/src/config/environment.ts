@@ -32,7 +32,13 @@ export const getApiUrl = (): string => config.apiUrl;
 export const isDevelopment = (): boolean => config.isDevelopment;
 export const isProduction = (): boolean => config.isProduction;
 
-// Log configuration in development
-if (typeof window !== 'undefined' && config.isDevelopment) {
-  console.log('🔧 Environment Configuration:', config);
+// Enhanced logging for debugging
+if (typeof window !== 'undefined') {
+  console.log('🔧 Environment Configuration:', {
+    apiUrl: config.apiUrl,
+    environment: config.environment,
+    isDevelopment: config.isDevelopment,
+    isProduction: config.isProduction,
+    nodeEnv: process.env.NODE_ENV,
+  });
 } 
