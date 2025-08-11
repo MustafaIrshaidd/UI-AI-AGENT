@@ -8,30 +8,34 @@ class ProductionConfig:
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "production")
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
     
-    # Database configuration - prioritize DATABASE_URL from environment
-    _DATABASE_URL: str = os.getenv("DATABASE_URL")
+    # Database configuration - will be validated when accessed
+    _DATABASE_URL: Optional[str] = None
     
-    # Only use fallback if DATABASE_URL is not set
-    if not _DATABASE_URL:
-        _DATABASE_URL = "postgresql://postgres:postgres@localhost:5434/ui_ai_agent"
-        print("WARNING: DATABASE_URL not set, using fallback localhost URL")
-    else:
-        print(f"Using DATABASE_URL from environment: {_DATABASE_URL[:50]}...")
-    
-    # Handle Render's DATABASE_URL format (add sslmode if needed)
-    if _DATABASE_URL.startswith("postgres://"):
-        _DATABASE_URL = _DATABASE_URL.replace("postgres://", "postgresql://", 1)
-        print("Converted postgres:// to postgresql://")
-    
-    # Add SSL mode for production databases (especially Render)
-    if ("render.com" in _DATABASE_URL or "localhost" not in _DATABASE_URL) and "sslmode" not in _DATABASE_URL:
-        if "?" in _DATABASE_URL:
-            _DATABASE_URL += "&sslmode=require"
-        else:
-            _DATABASE_URL += "?sslmode=require"
-        print("Added SSL mode to database URL")
-    
-    DATABASE_URL: str = _DATABASE_URL
+    @classmethod
+    def get_database_url(cls) -> str:
+        """Get database URL with proper formatting for production"""
+        if cls._DATABASE_URL is None:
+            cls._DATABASE_URL = os.getenv("DATABASE_URL")
+            
+            if not cls._DATABASE_URL:
+                raise ValueError("DATABASE_URL environment variable must be set in production")
+            
+            print(f"Using DATABASE_URL from environment: {cls._DATABASE_URL[:50]}...")
+            
+            # Handle Render's DATABASE_URL format (add sslmode if needed)
+            if cls._DATABASE_URL.startswith("postgres://"):
+                cls._DATABASE_URL = cls._DATABASE_URL.replace("postgres://", "postgresql://", 1)
+                print("Converted postgres:// to postgresql://")
+            
+            # Add SSL mode for production databases (especially Render)
+            if ("render.com" in cls._DATABASE_URL or "localhost" not in cls._DATABASE_URL) and "sslmode" not in cls._DATABASE_URL:
+                if "?" in cls._DATABASE_URL:
+                    cls._DATABASE_URL += "&sslmode=require"
+                else:
+                    cls._DATABASE_URL += "?sslmode=require"
+                print("Added SSL mode to database URL")
+        
+        return cls._DATABASE_URL
     
     # API configuration
     API_HOST: str = os.getenv("API_HOST", "0.0.0.0")
@@ -70,16 +74,24 @@ class ProductionConfig:
     # Select origins based on environment
     ALLOWED_ORIGINS: list = PROD_ORIGINS if ENVIRONMENT.lower() == "production" else DEV_ORIGINS
     
-    # Security
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "ptp9hdwavYXXS-YJcSp0ptD2uNYSXg32ouD6qxP6iOM")
+    # Security - will be validated when accessed
+    _SECRET_KEY: Optional[str] = None
+    
+    @classmethod
+    def get_secret_key(cls) -> str:
+        """Get SECRET_KEY with validation"""
+        if cls._SECRET_KEY is None:
+            cls._SECRET_KEY = os.getenv("SECRET_KEY")
+            
+            if not cls._SECRET_KEY:
+                raise ValueError("SECRET_KEY environment variable must be set in production")
+        
+        return cls._SECRET_KEY
     
     # Logging
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     
-    @classmethod
-    def get_database_url(cls) -> str:
-        """Get database URL with proper formatting for production"""
-        return cls.DATABASE_URL
+
     
     @classmethod
     def is_production(cls) -> bool:

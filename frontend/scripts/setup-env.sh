@@ -47,6 +47,13 @@ NEXT_PUBLIC_API_URL=$backend_url
 NEXT_PUBLIC_ENVIRONMENT=$environment
 
 # Additional Configuration
+# Auth0 Configuration
+AUTH0_SECRET="$(openssl rand -hex 32)"
+AUTH0_ISSUER_BASE_URL="https://YOUR_DOMAIN"
+AUTH0_BASE_URL="http://localhost:3000"
+AUTH0_CLIENT_ID="YOUR_CLIENT_ID"
+AUTH0_CLIENT_SECRET="YOUR_CLIENT_SECRET"
+AUTH0_AUDIENCE="YOUR_API_AUDIENCE"
 # Add any other environment variables you need below
 EOF
 
