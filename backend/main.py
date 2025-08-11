@@ -4,12 +4,13 @@ from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
 
-# Import database and GraphQL components
+# Import database and configuration
 from src.core.config.database import create_db_and_tables, engine
 from src.core.config.production import ProductionConfig
 from src.core.config.development import DevelopmentConfig
-from src.api.graphql.router import graphql_app
-from src.api.graphql.dashboard import graphql_dashboard
+
+# Import routes
+from src.routes import user_routes
 
 load_dotenv()
 
@@ -24,7 +25,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="UI AI Agent API",
-    description="A FastAPI application with GraphQL and PostgreSQL",
+    description="Basic FastAPI with database connection",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -35,12 +36,9 @@ if ENVIRONMENT.lower() == "production":
     config = ProductionConfig()
 else:
     config = DevelopmentConfig()
-print(f"Environment: {config.ENVIRONMENT}")
-print(f"Database URL: {config.get_database_url()[:50]}...")
 
 # Get CORS origins
 cors_origins = config.get_cors_origins()
-print(f"Setting up CORS with origins: {cors_origins}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,79 +50,25 @@ app.add_middleware(
     max_age=86400,  # Cache preflight requests for 24 hours
 )
 
-# Include GraphQL router
-app.include_router(graphql_app, prefix="/graphql")
+# Include routers
+app.include_router(user_routes.router)
 
-# Add custom dashboard endpoint
-@app.get("/dashboard")
-async def dashboard():
-    return await graphql_dashboard()
-
+# Basic endpoints for health and root
 @app.get("/")
 def read_root():
-    return {
-        "message": "Hello from FastAPI with GraphQL and PostgreSQL!",
-        "graphql_playground": "/graphql",
-        "health_check": "/health"
-    }
+    return {"message": "Hello from FastAPI with PostgreSQL!"}
 
 @app.get("/health")
 def health_check():
-    return {
-        "status": "healthy", 
-        "environment": config.ENVIRONMENT,
-        "database_connected": "postgresql" in config.get_database_url(),
-        "version": "1.0.0"
-    }
+    return {"status": "healthy", "environment": ENVIRONMENT}
 
-@app.get("/db-test")
-def test_database_connection():
-    """Test database connection and return detailed status"""
-    try:
-        # Test the connection
-        with engine.connect() as connection:
-            result = connection.execute("SELECT 1")
-            result.fetchone()
-        
-        return {
-            "status": "success",
-            "message": "Database connection successful",
-            "database_url": config.get_database_url()[:50] + "...",
-            "environment": config.ENVIRONMENT
-        }
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": f"Database connection failed: {str(e)}",
-            "database_url": config.get_database_url()[:50] + "...",
-            "environment": config.ENVIRONMENT,
-            "error_type": type(e).__name__
-        }
-
-@app.get("/cors-config")
-def cors_config():
-    """Debug endpoint to show current CORS configuration"""
-    return {
-        "allowed_origins": config.get_cors_origins(),
-        "environment": config.ENVIRONMENT,
-        "frontend_url": config.FRONTEND_URL,
-        "additional_origins": os.getenv("ADDITIONAL_CORS_ORIGINS", ""),
-        "cors_enabled": True,
-        "allow_credentials": True,
-        "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-        "allow_headers": ["*"],
-        "expose_headers": ["*"],
-        "max_age": 86400,
-        "debug_info": {
-            "environment_vars": {
-                "ENVIRONMENT": os.getenv("ENVIRONMENT"),
-                "FRONTEND_URL": os.getenv("FRONTEND_URL"),
-                "ADDITIONAL_CORS_ORIGINS": os.getenv("ADDITIONAL_CORS_ORIGINS"),
-            }
-        }
-    }
-
-@app.options("/{full_path:path}")
-async def options_handler(full_path: str):
-    """Handle OPTIONS requests for CORS preflight"""
-    return {"message": "CORS preflight handled"}
+# Add server startup code
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"
+    )
