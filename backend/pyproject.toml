@@ -16,6 +16,9 @@ sqlmodel = "^0.0.14"
 psycopg2-binary = "^2.9.9"
 alembic = "^1.13.1"
 uvicorn = "^0.35.0"
+email-validator = "^2.2.0"
+python-jose = {version = "^3.3.0", extras = ["cryptography"]}
+pydantic = {version = "^2.0.0", extras = ["email"]}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

@@ -1,55 +1,48 @@
 # Backend Scripts
 
-This directory contains scripts for managing the backend services.
+This directory contains essential scripts for managing the backend services.
 
-## 🗄️ Database Scripts
+## 🗄️ Database Migration Script
 
-### `start-database.sh`
-Starts PostgreSQL database using Docker Compose with health monitoring.
-
-**Usage:**
-```bash
-./scripts/start-database.sh
-```
-
-**What it does:**
-- ✅ Checks Docker availability
-- ✅ Verifies Docker Compose
-- ✅ Stops existing containers for clean start
-- ✅ Starts PostgreSQL container
-- ✅ Starts pgAdmin container
-- ✅ Monitors database health with retry logic
-- ✅ Provides detailed status information
-
-### `stop-database.sh`
-Stops the PostgreSQL database and pgAdmin with status verification.
+### `migrate-db.sh`
+Comprehensive database migration management script using Alembic.
 
 **Usage:**
 ```bash
-./scripts/stop-database.sh
+./scripts/migrate-db.sh [command] [options]
 ```
 
-**What it does:**
-- ✅ Checks Docker availability
-- ✅ Verifies container status
-- ✅ Gracefully stops containers
-- ✅ Provides helpful error messages
+**Commands:**
+- `create [message]` - Create a new migration with optional message
+- `apply|upgrade` - Apply all pending migrations
+- `status` - Show current migration status and history
+- `rollback [rev]` - Rollback to specific revision
+- `init` - Initialize database with current models
+- `help` - Show help message
 
-### `reset-database.sh`
-Resets the database and runs migrations.
-
-**Usage:**
+**Examples:**
 ```bash
-./scripts/reset-database.sh
+# Create a new migration
+./scripts/migrate-db.sh create 'Add user profile fields'
+
+# Apply all migrations
+./scripts/migrate-db.sh apply
+
+# Check migration status
+./scripts/migrate-db.sh status
+
+# Initialize database
+./scripts/migrate-db.sh init
 ```
 
 **What it does:**
-- Stops existing database
-- Removes old data
-- Starts fresh database
-- Runs initialization scripts
+- ✅ Checks Poetry and Alembic availability
+- ✅ Verifies database connection
+- ✅ Creates and applies migrations
+- ✅ Provides rollback functionality
+- ✅ Shows migration history and status
 
-## 🔥 Development Scripts
+## 🚀 Development Script
 
 ### `start-backend.sh`
 Starts the FastAPI development server with Docker integration.
@@ -69,25 +62,13 @@ Starts the FastAPI development server with Docker integration.
 - ✅ Starts uvicorn server with hot reload
 - ✅ Runs on http://localhost:8000
 
-### `build.sh`
-Builds the Docker image for deployment.
-
-**Usage:**
-```bash
-./scripts/build.sh
-```
-
-**What it does:**
-- Builds Docker image
-- Tags it appropriately
-- Prepares for deployment
-
 ## 🔧 Environment Variables
 
 These scripts use the following environment variables:
 
 ```bash
-DATABASE_URL=postgresql://postgres:postgres@localhost:5434/ui_ai_agent
+POSTGRES_PASSWORD=your_secure_password
+DATABASE_URL=postgresql://postgres:your_password@localhost:5434/ui_ai_agent
 FRONTEND_URL=http://localhost:3000
 ENVIRONMENT=development
 DEBUG=true
@@ -96,20 +77,14 @@ DEBUG=true
 ## 📋 Quick Commands
 
 ```bash
-# Start database only
-./scripts/start-database.sh
-
-# Start backend only
+# Start backend (includes database startup)
 ./scripts/start-backend.sh
 
-# Reset database
-./scripts/reset-database.sh
-
-# Stop database
-./scripts/stop-database.sh
-
-# Build for deployment
-./scripts/build.sh
+# Database migrations
+./scripts/migrate-db.sh init      # Initialize database
+./scripts/migrate-db.sh create    # Create new migration
+./scripts/migrate-db.sh apply     # Apply migrations
+./scripts/migrate-db.sh status    # Check status
 ```
 
 ## 🔍 Troubleshooting
@@ -118,8 +93,14 @@ DEBUG=true
 - Ensure Docker is running
 - Check if port 5434 is available
 - Verify Docker Compose configuration
+- Set POSTGRES_PASSWORD environment variable
 
 ### Backend Issues
 - Make sure Poetry is installed
 - Check Python version compatibility
-- Verify all dependencies are installed 
+- Verify all dependencies are installed
+
+### Migration Issues
+- Ensure database is running and accessible
+- Check POSTGRES_PASSWORD is set correctly
+- Verify models are properly imported in database.py 

@@ -52,8 +52,8 @@ backend/
    # Start PostgreSQL
    docker-compose up -d postgres
    
-   # Run migrations
-   poetry run alembic upgrade head
+   # Run migrations (using the migration script)
+   ./scripts/migrate-db.sh init
    ```
 
 4. **Start development server:**
