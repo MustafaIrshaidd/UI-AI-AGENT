@@ -66,13 +66,13 @@ if [ ! -d ".venv" ]; then
 fi
 
 # Set environment variables
-export DATABASE_URL="postgresql://postgres:postgres@localhost:5434/ui_ai_agent"
+# DATABASE_URL should be set via environment variable
+# export DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
 export FRONT_END_URL="http://localhost:3000"
 export ENVIRONMENT="development"
 
 echo "🌐 Starting FastAPI server with GraphQL..."
 echo "📊 GraphQL Playground: http://localhost:8000/graphql"
-echo "📈 pgAdmin Dashboard: http://localhost:5050 (admin@admin.com / admin)"
 echo "🔗 API Documentation: http://localhost:8000/docs"
 echo ""
 echo "Press Ctrl+C to stop the server"

@@ -1,26 +1,41 @@
 from sqlmodel import SQLModel, create_engine, Session
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.exc import OperationalError
+from sqlalchemy import text
 import os
 import time
 from typing import Generator
-from .production import ProductionConfig
-from .development import DevelopmentConfig
+
+# Import models to ensure they're registered with SQLModel metadata
+from src.models.entities.user import User
+
+def get_database_url():
+    """Get database URL based on environment"""
+    ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+    if ENVIRONMENT.lower() == "production":
+        from .production import ProductionConfig
+        return ProductionConfig.get_database_url()
+    else:
+        from .development import DevelopmentConfig
+        return DevelopmentConfig.get_database_url()
 
 # Get database URL based on environment
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
-if ENVIRONMENT.lower() == "production":
-    DATABASE_URL = ProductionConfig.get_database_url()
-else:
-    DATABASE_URL = DevelopmentConfig.get_database_url()
+DATABASE_URL = get_database_url()
 
 print(f"Initializing database connection to: {DATABASE_URL[:50]}...")
 
+def get_config():
+    """Get configuration based on environment"""
+    ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+    if ENVIRONMENT.lower() == "production":
+        from .production import ProductionConfig
+        return ProductionConfig
+    else:
+        from .development import DevelopmentConfig
+        return DevelopmentConfig
+
 # Create engine with environment-appropriate settings
-if ENVIRONMENT.lower() == "production":
-    config = ProductionConfig
-else:
-    config = DevelopmentConfig
+config = get_config()
 
 engine = create_engine(
     DATABASE_URL,
@@ -35,13 +50,20 @@ engine = create_engine(
 )
 
 def create_db_and_tables():
-    """Create database tables with retry logic"""
+    """Create database tables if they don't exist"""
     max_retries = 5
     retry_delay = 2
     
     for attempt in range(max_retries):
         try:
-            print(f"Attempting to create database tables (attempt {attempt + 1}/{max_retries})")
+            print(f"Testing database connection (attempt {attempt + 1}/{max_retries})")
+            # Test the connection
+            with engine.connect() as connection:
+                connection.execute(text("SELECT 1"))
+            print("Database connection successful")
+            
+            # Create all tables
+            print("Creating database tables...")
             SQLModel.metadata.create_all(engine)
             print("Database tables created successfully")
             return
@@ -52,15 +74,8 @@ def create_db_and_tables():
                 time.sleep(retry_delay)
                 retry_delay *= 2  # Exponential backoff
             else:
-                print("Max retries reached. Database connection failed.")
-                print("This is likely because:")
-                print("1. DATABASE_URL environment variable is not set")
-                print("2. Database service is not running")
-                print("3. Database credentials are incorrect")
-                print("4. Network connectivity issues")
-                print("Please check your Render deployment configuration.")
-                # Don't raise the exception - let the app start without database
-                print("Continuing without database initialization...")
+                error_msg = "Max retries reached. Database connection failed. This is likely because: 1. DATABASE_URL environment variable is not set, 2. Database service is not running, 3. Database credentials are incorrect, or 4. Network connectivity issues. Please check your configuration."
+                raise ConnectionError(error_msg)
                 return
 
 def get_session() -> Generator[Session, None, None]:

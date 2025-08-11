@@ -4,10 +4,19 @@ from typing import Optional
 class DevelopmentConfig:
     """Development configuration for local development"""
     
-    # Database configuration
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5434/ui_ai_agent")
-
-    print("hello", DATABASE_URL)
+    # Database configuration - will be validated when accessed
+    _DATABASE_URL: Optional[str] = None
+    
+    @classmethod
+    def get_database_url(cls) -> str:
+        """Get database URL for development"""
+        if cls._DATABASE_URL is None:
+            cls._DATABASE_URL = os.getenv("DATABASE_URL")
+            
+            if not cls._DATABASE_URL:
+                raise ValueError("DATABASE_URL environment variable must be set")
+        
+        return cls._DATABASE_URL
     
     # API configuration
     API_HOST: str = os.getenv("API_HOST", "0.0.0.0")
@@ -31,16 +40,24 @@ class DevelopmentConfig:
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
     
-    # Security
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+    # Security - will be validated when accessed
+    _SECRET_KEY: Optional[str] = None
+    
+    @classmethod
+    def get_secret_key(cls) -> str:
+        """Get SECRET_KEY with validation"""
+        if cls._SECRET_KEY is None:
+            cls._SECRET_KEY = os.getenv("SECRET_KEY")
+            
+            if not cls._SECRET_KEY:
+                raise ValueError("SECRET_KEY environment variable must be set")
+        
+        return cls._SECRET_KEY
     
     # Logging
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "DEBUG")
     
-    @classmethod
-    def get_database_url(cls) -> str:
-        """Get database URL for development"""
-        return cls.DATABASE_URL
+
     
     @classmethod
     def is_production(cls) -> bool:

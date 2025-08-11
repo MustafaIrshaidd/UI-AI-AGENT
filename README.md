@@ -1,6 +1,6 @@
-# 🚀 UI AI Agent
+# 🚀 Clean Architecture API Example
 
-A modern web application with GraphQL API, PostgreSQL database, and beautiful dashboard interface. Features automated CI/CD pipeline with GitHub Actions.
+A modern FastAPI application demonstrating clean architecture principles with PostgreSQL database. Features separation of concerns, dependency injection, and comprehensive testing capabilities.
 
 ## 🚀 Quick Start
 
@@ -38,21 +38,23 @@ A modern web application with GraphQL API, PostgreSQL database, and beautiful da
 4. **Access the application**
    - **Frontend**: http://localhost:3000
    - **Backend**: http://localhost:8000
-   - **Dashboard**: http://localhost:8000/dashboard
-   - **GraphQL Playground**: http://localhost:8000/graphql
-   - **API Docs**: http://localhost:8000/docs
+   - **API Documentation**: http://localhost:8000/docs
+   - **User Management API**: http://localhost:8000/api/v1/users
    - **pgAdmin**: http://localhost:5050
 
 ## 🏗️ Project Structure
 
 ```
 UI-AI-AGENT/
-├── backend/                 # FastAPI GraphQL API
+├── backend/                 # FastAPI Clean Architecture API
 │   ├── src/
-│   │   ├── api/graphql/    # GraphQL schema & router
-│   │   ├── core/config/    # Database & production config
-│   │   ├── models/         # SQLModel entities
-│   │   └── ...
+│   │   ├── api/v1/         # Presentation Layer (Controllers)
+│   │   ├── core/           # Core Layer (Config, Exceptions)
+│   │   ├── models/         # Data Layer (Entities, DTOs)
+│   │   │   ├── entities/   # Database entities
+│   │   │   ├── requests/   # Request models
+│   │   │   └── responses/  # Response models
+│   │   └── services/       # Business Logic Layer
 │   ├── scripts/            # Backend utility scripts
 │   ├── requirements.txt    # Render compatibility
 │   └── pyproject.toml      # Python dependencies
@@ -111,6 +113,33 @@ curl https://your-backend.onrender.com/cors-config
 
 For detailed CORS troubleshooting, see [CORS_TROUBLESHOOTING.md](./backend/CORS_TROUBLESHOOTING.md).
 
+## 🏗️ Clean Architecture Example
+
+This project demonstrates clean architecture principles with a complete User Management API:
+
+### **API Endpoints**
+- `POST /api/v1/users/` - Create user
+- `GET /api/v1/users/` - List users (with pagination)
+- `GET /api/v1/users/{id}` - Get user by ID
+- `PUT /api/v1/users/{id}` - Update user
+- `DELETE /api/v1/users/{id}` - Delete user (soft delete)
+
+### **Architecture Layers**
+1. **Presentation Layer** (`src/api/v1/`) - Controllers and HTTP handling
+2. **Business Logic Layer** (`src/services/`) - Business rules and use cases
+3. **Data Layer** (`src/models/`) - Entities, DTOs, and data structures
+4. **Core Layer** (`src/core/`) - Configuration and cross-cutting concerns
+
+### **Key Features**
+- ✅ Dependency Injection
+- ✅ Custom Exceptions
+- ✅ Request/Response Validation
+- ✅ Error Handling
+- ✅ Type Safety
+- ✅ Comprehensive Documentation
+
+For detailed architecture documentation, see [CLEAN_ARCHITECTURE.md](./backend/CLEAN_ARCHITECTURE.md).
+
 ### 📋 Workflow
 
 1. **Feature Branch** → **Tests** → **PR to Dev**
@@ -151,9 +180,9 @@ For detailed script documentation, see:
 
 ### Backend
 - **FastAPI** - Modern Python web framework
-- **Strawberry GraphQL** - Type-safe GraphQL implementation
 - **SQLModel** - SQLAlchemy-based ORM with Pydantic
 - **PostgreSQL** - Production-ready database
+- **Clean Architecture** - Separation of concerns and dependency injection
 - **Poetry** - Dependency management
 - **Pytest** - Testing framework
 - **Flake8** - Code linting
