@@ -17,6 +17,8 @@ if config.config_file_name is not None:
 # Import your models and configuration
 import sys
 import os
+from dotenv import load_dotenv
+load_dotenv()
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set environment to development for Alembic
