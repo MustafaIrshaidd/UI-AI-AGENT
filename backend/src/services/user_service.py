@@ -68,6 +68,8 @@ class UserService:
             user.family_name = user_data.family_name
         if user_data.last_name is not None:
             user.last_name = user_data.last_name
+        if user_data.username is not None:
+            user.username = user_data.username
         if user_data.is_active is not None:
             user.is_active = user_data.is_active
         
