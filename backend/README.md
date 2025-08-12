@@ -9,6 +9,7 @@ A FastAPI-based backend service with GraphQL support for the UI AI Agent applica
 - **PostgreSQL**: Robust database with SQLModel ORM
 - **Docker**: Containerized deployment
 - **Health Checks**: Built-in monitoring endpoints
+- **Automatic Migrations**: Production-ready database migration system
 
 ## 🏗️ Architecture
 
@@ -91,6 +92,31 @@ docker build -t ui-ai-agent-backend .
 docker run -p 8000:8000 ui-ai-agent-backend
 ```
 
+## 🚀 Production Deployment
+
+### Render Deployment
+
+The application is configured for automatic deployment on Render with:
+
+- **Automatic Migrations**: Database migrations run during build and startup
+- **Health Checks**: Built-in monitoring and health verification
+- **Environment Management**: Production-ready configuration
+
+See [PRODUCTION_MIGRATIONS.md](./PRODUCTION_MIGRATIONS.md) for detailed information about production database migrations.
+
+### Migration Scripts
+
+```bash
+# Production migrations
+./scripts/production-migrate.sh
+
+# Development migrations
+./scripts/migrate-db.sh apply
+
+# Check migration status
+./scripts/migrate-db.sh status
+```
+
 ## 🌐 Environment Variables
 
 | Variable | Description | Default |
@@ -109,4 +135,4 @@ docker run -p 8000:8000 ui-ai-agent-backend
 
 - CORS configured for frontend domains
 - Environment-specific security headers
-- Input validation with Pydantic models 
+- Input validation with Pydantic models

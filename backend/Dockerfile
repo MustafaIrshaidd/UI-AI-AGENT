@@ -35,6 +35,27 @@ RUN poetry install --only=main --no-root
 # Copy application code
 COPY . .
 
+# Create startup script
+RUN echo '#!/bin/bash\n\
+echo "🚀 Starting UI AI Agent Backend..."\n\
+echo "🔍 Checking if migrations are needed..."\n\
+if poetry run alembic current &>/dev/null; then\n\
+    echo "📊 Current migration status:"\n\
+    poetry run alembic current\n\
+    echo "🚀 Applying any pending migrations..."\n\
+    poetry run alembic upgrade head\n\
+    if [ $? -eq 0 ]; then\n\
+        echo "✅ Migrations completed successfully"\n\
+    else\n\
+        echo "❌ Migration failed, but continuing..."\n\
+    fi\n\
+else\n\
+    echo "⚠️  Could not check migration status, continuing..."\n\
+fi\n\
+echo "🚀 Starting application..."\n\
+exec poetry run uvicorn main:app --host 0.0.0.0 --port 8000\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
 # Create non-root user
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
 USER appuser
@@ -46,5 +67,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start the application
-CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"] 
+# Start the application with migrations
+CMD ["/app/start.sh"] 
