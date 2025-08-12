@@ -6,7 +6,8 @@ interface User {
   id: string;
   email: string;
   username?: string;
-  full_name?: string;
+  family_name?: string;
+  last_name?: string;
   auth0_id?: string;
   is_active: boolean;
   created_at: string;
@@ -16,7 +17,8 @@ interface User {
 interface CreateUserForm {
   email: string;
   username: string;
-  full_name: string;
+  family_name: string;
+  last_name: string;
   auth0_id: string;
 }
 
@@ -26,7 +28,8 @@ export default function Home() {
   const [createForm, setCreateForm] = useState<CreateUserForm>({
     email: '',
     username: '',
-    full_name: '',
+    family_name: '',
+    last_name: '',
     auth0_id: ''
   });
 
@@ -64,7 +67,8 @@ export default function Home() {
         body: JSON.stringify({
           email: createForm.email,
           username: createForm.username || undefined,
-          full_name: createForm.full_name || undefined,
+          family_name: createForm.family_name || undefined,
+          last_name: createForm.last_name || undefined,
           auth0_id: createForm.auth0_id || undefined,
         }),
       });
@@ -77,7 +81,8 @@ export default function Home() {
         setCreateForm({
           email: '',
           username: '',
-          full_name: '',
+          family_name: '',
+          last_name: '',
           auth0_id: ''
         });
         
@@ -146,21 +151,35 @@ export default function Home() {
                   value={createForm.username}
                   onChange={(e) => setCreateForm({...createForm, username: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="username"
+                  placeholder="johndoe"
                 />
               </div>
 
               <div>
-                <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
+                <label htmlFor="family_name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Family Name
                 </label>
                 <input
                   type="text"
-                  id="full_name"
-                  value={createForm.full_name}
-                  onChange={(e) => setCreateForm({...createForm, full_name: e.target.value})}
+                  id="family_name"
+                  value={createForm.family_name}
+                  onChange={(e) => setCreateForm({...createForm, family_name: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="John Doe"
+                  placeholder="John"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  id="last_name"
+                  value={createForm.last_name}
+                  onChange={(e) => setCreateForm({...createForm, last_name: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Doe"
                 />
               </div>
 
@@ -219,11 +238,19 @@ export default function Home() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900">
-                          {user.full_name || user.username || 'Unnamed User'}
+                          {user.family_name && user.last_name 
+                            ? `${user.family_name} ${user.last_name}`
+                            : user.family_name || user.last_name || 'Unnamed User'
+                          }
                         </h3>
                         <p className="text-sm text-gray-600">{user.email}</p>
                         {user.username && (
                           <p className="text-xs text-gray-500">@{user.username}</p>
+                        )}
+                        {user.family_name && user.last_name && (
+                          <p className="text-xs text-gray-500">
+                            {user.family_name} {user.last_name}
+                          </p>
                         )}
                         <div className="flex items-center mt-2 space-x-4 text-xs text-gray-500">
                           <span className={`px-2 py-1 rounded-full ${

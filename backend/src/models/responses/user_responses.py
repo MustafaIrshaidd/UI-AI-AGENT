@@ -8,7 +8,8 @@ class UserResponse(BaseModel):
     id: UUID
     email: str
     username: Optional[str] = None
-    full_name: Optional[str] = None
+    family_name: Optional[str] = None
+    last_name: Optional[str] = None
     auth0_id: Optional[str] = None
     is_active: bool
     created_at: datetime
