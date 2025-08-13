@@ -27,7 +27,7 @@ class UserService:
         user = User(
             email=user_data.email,
             username=user_data.username,
-            family_name=user_data.family_name,
+            first_name=user_data.first_name,
             last_name=user_data.last_name,
             auth0_id=user_data.auth0_id,
             is_active=True,
@@ -64,8 +64,8 @@ class UserService:
             return None
         
         # Update fields if provided
-        if user_data.family_name is not None:
-            user.family_name = user_data.family_name
+        if user_data.first_name is not None:
+            user.first_name = user_data.first_name
         if user_data.last_name is not None:
             user.last_name = user_data.last_name
         if user_data.is_active is not None:

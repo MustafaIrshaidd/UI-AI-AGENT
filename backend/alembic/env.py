@@ -71,8 +71,12 @@ def run_migrations_online() -> None:
     """
     # Create engine directly for Alembic using environment variables
     from sqlalchemy import create_engine
-    password = os.environ.get("POSTGRES_PASSWORD", "postgres")
-    url = f"postgresql://postgres:{password}@localhost:5434/ui_ai_agent"
+    url = os.environ.get("DATABASE_URL")
+    if not url:
+        url = config.get_main_option("sqlalchemy.url")  # fallback to alembic.ini
+        if not url:
+            raise RuntimeError("DATABASE_URL not set and no URL in alembic.ini")
+
     connectable = create_engine(url)
 
     with connectable.connect() as connection:
