@@ -20,6 +20,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set environment to development for Alembic
@@ -76,7 +78,6 @@ def run_migrations_online() -> None:
         url = config.get_main_option("sqlalchemy.url")  # fallback to alembic.ini
         if not url:
             raise RuntimeError("DATABASE_URL not set and no URL in alembic.ini")
-
     connectable = create_engine(url)
 
     with connectable.connect() as connection:
