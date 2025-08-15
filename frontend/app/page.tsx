@@ -6,7 +6,7 @@ interface User {
   id: string;
   email: string;
   username?: string;
-  family_name?: string;
+  first_name?: string;
   last_name?: string;
   auth0_id?: string;
   is_active: boolean;
@@ -17,7 +17,7 @@ interface User {
 interface CreateUserForm {
   email: string;
   username: string;
-  family_name: string;
+  first_name: string;
   last_name: string;
   auth0_id: string;
 }
@@ -28,7 +28,7 @@ export default function Home() {
   const [createForm, setCreateForm] = useState<CreateUserForm>({
     email: '',
     username: '',
-    family_name: '',
+    first_name: '',
     last_name: '',
     auth0_id: ''
   });
@@ -67,7 +67,7 @@ export default function Home() {
         body: JSON.stringify({
           email: createForm.email,
           username: createForm.username || undefined,
-          family_name: createForm.family_name || undefined,
+          first_name: createForm.first_name || undefined,
           last_name: createForm.last_name || undefined,
           auth0_id: createForm.auth0_id || undefined,
         }),
@@ -81,7 +81,7 @@ export default function Home() {
         setCreateForm({
           email: '',
           username: '',
-          family_name: '',
+          first_name: '',
           last_name: '',
           auth0_id: ''
         });
@@ -156,14 +156,14 @@ export default function Home() {
               </div>
 
               <div>
-                <label htmlFor="family_name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Family Name
+                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name
                 </label>
                 <input
                   type="text"
-                  id="family_name"
-                  value={createForm.family_name}
-                  onChange={(e) => setCreateForm({...createForm, family_name: e.target.value})}
+                  id="first_name"
+                  value={createForm.first_name}
+                  onChange={(e) => setCreateForm({...createForm, first_name: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="John"
                 />
@@ -238,18 +238,18 @@ export default function Home() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900">
-                          {user.family_name && user.last_name 
-                            ? `${user.family_name} ${user.last_name}`
-                            : user.family_name || user.last_name || 'Unnamed User'
+                          {user.first_name && user.last_name 
+                            ? `${user.first_name} ${user.last_name}`
+                            : user.first_name || user.last_name || 'Unnamed User'
                           }
                         </h3>
                         <p className="text-sm text-gray-600">{user.email}</p>
                         {user.username && (
                           <p className="text-xs text-gray-500">@{user.username}</p>
                         )}
-                        {user.family_name && user.last_name && (
+                        {user.first_name && user.last_name && (
                           <p className="text-xs text-gray-500">
-                            {user.family_name} {user.last_name}
+                            {user.first_name} {user.last_name}
                           </p>
                         )}
                         <div className="flex items-center mt-2 space-x-4 text-xs text-gray-500">
