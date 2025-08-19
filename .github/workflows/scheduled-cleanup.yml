@@ -35,7 +35,7 @@ jobs:
         
         # Find merged branches
         echo "### Merged Branches (candidates for deletion):" >> $GITHUB_STEP_SUMMARY
-        for branch in $(git branch -r | grep -v "origin/main" | grep -v "origin/dev" | grep -v "HEAD" | sed 's/origin\///'); do
+        for branch in $(git branch -r | grep -v "origin/main" | grep -v "HEAD" | sed 's/origin\///'); do
           if git branch -r --merged origin/main | grep -q "origin/$branch"; then
             echo "- $branch ✅ (merged)" >> $GITHUB_STEP_SUMMARY
           fi
@@ -44,7 +44,7 @@ jobs:
         
         # Find stale branches (older than 30 days)
         echo "### Stale Branches (older than 30 days):" >> $GITHUB_STEP_SUMMARY
-        for branch in $(git branch -r | grep -v "origin/main" | grep -v "origin/dev" | grep -v "HEAD" | sed 's/origin\///'); do
+        for branch in $(git branch -r | grep -v "origin/main" | grep -v "HEAD" | sed 's/origin\///'); do
           last_commit_date=$(git log -1 --format="%cd" --date=short "origin/$branch")
           days_old=$(( ( $(date +%s) - $(date -d "$last_commit_date" +%s) ) / 86400 ))
           if [ $days_old -gt 30 ]; then

@@ -1,14 +1,14 @@
-name: CI - Build and Test
+name: Pull Request Checks
 
 on:
   pull_request:
     branches: [ main ]
-  push:
+  pull_request_target:
     branches: [ main ]
 
 jobs:
-  backend-ci:
-    name: Backend CI
+  pr-backend-checks:
+    name: Backend PR Checks
     runs-on: ubuntu-latest
     
     steps:
@@ -80,7 +80,7 @@ jobs:
         fi
         
         echo "✅ Dependencies installation completed"
-        
+      
     - name: Verify dev dependencies
       working-directory: ./backend
       run: |
@@ -100,22 +100,40 @@ jobs:
     - name: Run security scan
       working-directory: ./backend
       run: |
+        echo "🔒 Running backend security scan..."
         poetry run bandit -r . -f json -o bandit-report.json || true
         poetry run safety check --json --output safety-report.json || true
         
     - name: Run tests
       working-directory: ./backend
-      run: poetry run pytest tests/ -v --cov=. --cov-report=xml
-      
+      run: |
+        echo "🧪 Running backend tests..."
+        poetry run pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing
+        
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
         file: ./backend/coverage.xml
-        flags: backend
-        name: backend-coverage
+        flags: backend-pr
+        name: backend-pr-coverage
+        
+    - name: PR Check Summary
+      if: always()
+      run: |
+        echo "## Backend PR Check Results" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ **Backend checks passed successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "- Linting: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- Security scan: ✅ Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- Tests: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage: ✅ Generated" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Backend checks failed!**" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+        fi
 
-  frontend-ci:
-    name: Frontend CI
+  pr-frontend-checks:
+    name: Frontend PR Checks
     runs-on: ubuntu-latest
     
     steps:
@@ -135,23 +153,78 @@ jobs:
       
     - name: Run linting
       working-directory: ./frontend
-      run: npm run lint
-      
+      run: |
+        echo "🔍 Running frontend linting..."
+        npm run lint
+        
     - name: Run type checking
       working-directory: ./frontend
-      run: npx tsc --noEmit
-      
+      run: |
+        echo "🔍 Running TypeScript type checking..."
+        npx tsc --noEmit
+        
     - name: Run security audit
       working-directory: ./frontend
-      run: npm audit --audit-level=moderate
-      
+      run: |
+        echo "🔒 Running frontend security audit..."
+        npm audit --audit-level=moderate
+        
     - name: Build application
       working-directory: ./frontend
-      run: npm run build
-      
+      run: |
+        echo "🏗️ Building frontend application..."
+        npm run build
+        
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: frontend-build
+        name: frontend-pr-build
         path: frontend/.next
-        retention-days: 1 
+        retention-days: 1
+        
+    - name: PR Check Summary
+      if: always()
+      run: |
+        echo "## Frontend PR Check Results" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ **Frontend checks passed successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "- Linting: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- Type checking: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- Security audit: ✅ Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- Build: ✅ Successful" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Frontend checks failed!**" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+        fi
+
+  pr-summary:
+    name: PR Summary
+    runs-on: ubuntu-latest
+    needs: [pr-backend-checks, pr-frontend-checks]
+    if: always()
+    
+    steps:
+    - name: Generate PR Summary
+      run: |
+        echo "## 🚀 Pull Request Ready for Review!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ✅ All checks completed!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.pr-backend-checks.result }}" == "success" ] && [ "${{ needs.pr-frontend-checks.result }}" == "success" ]; then
+          echo "🎉 **All checks passed!** This PR is ready for review and merge." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### What happens next?" >> $GITHUB_STEP_SUMMARY
+          echo "1. ✅ Code review and approval" >> $GITHUB_STEP_SUMMARY
+          echo "2. ✅ Merge to main branch" >> $GITHUB_STEP_SUMMARY
+          echo "3. 🚀 Automatic deployment to production (Vercel + Render)" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ **Some checks failed.** Please fix the issues before merging." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Failed checks:" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.pr-backend-checks.result }}" != "success" ]; then
+            echo "- ❌ Backend checks" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ needs.pr-frontend-checks.result }}" != "success" ]; then
+            echo "- ❌ Frontend checks" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi 
