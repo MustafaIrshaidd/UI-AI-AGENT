@@ -1,5 +1,5 @@
 # Branch Protection Rules Configuration
-# This file defines the protection rules for main and dev branches
+# This file defines the protection rules for main branch (production)
 
 branches:
   main:
@@ -7,9 +7,9 @@ branches:
       required_status_checks:
         strict: true
         contexts:
-          - "CI - Build and Test"
-          - "Backend CI"
-          - "Frontend CI"
+          - "Backend PR Checks"
+          - "Frontend PR Checks"
+          - "PR Summary"
       enforce_admins: true
       required_pull_request_reviews:
         required_approving_review_count: 2
@@ -23,27 +23,4 @@ branches:
       allow_force_pushes: false
       allow_deletions: false
       block_creations: true
-      required_conversation_resolution: true
-      
-  dev:
-    protection_rules:
-      required_status_checks:
-        strict: true
-        contexts:
-          - "CI - Build and Test"
-          - "Backend CI"
-          - "Frontend CI"
-      enforce_admins: false
-      required_pull_request_reviews:
-        required_approving_review_count: 1
-        dismiss_stale_reviews: true
-        require_code_owner_reviews: false
-        require_last_push_approval: false
-      restrictions:
-        users: []
-        teams: []
-      required_linear_history: false
-      allow_force_pushes: false
-      allow_deletions: false
-      block_creations: false
       required_conversation_resolution: true 

@@ -3,7 +3,7 @@ name: Branch Cleanup
 on:
   pull_request:
     types: [closed]
-    branches: [ main, dev ]
+    branches: [ main ]
 
 jobs:
   cleanup-branches:
@@ -19,8 +19,8 @@ jobs:
         
     - name: Delete merged branch
       run: |
-        # Only delete feature branches, not main or dev
-        if [[ "${{ github.event.pull_request.head.ref }}" != "main" && "${{ github.event.pull_request.head.ref }}" != "dev" ]]; then
+            # Only delete feature branches, not main
+    if [[ "${{ github.event.pull_request.head.ref }}" != "main" ]]; then
           echo "Deleting merged branch: ${{ github.event.pull_request.head.ref }}"
           git push origin --delete ${{ github.event.pull_request.head.ref }}
         else
@@ -32,8 +32,8 @@ jobs:
         # Get list of remote branches
         git fetch --prune
         
-        # List all remote branches except main and dev
-        for branch in $(git branch -r | grep -v "origin/main" | grep -v "origin/dev" | grep -v "HEAD" | sed 's/origin\///'); do
+            # List all remote branches except main
+    for branch in $(git branch -r | grep -v "origin/main" | grep -v "HEAD" | sed 's/origin\///'); do
           # Check if branch has been merged
           if git branch -r --merged origin/main | grep -q "origin/$branch"; then
             echo "Deleting stale merged branch: $branch"

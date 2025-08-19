@@ -1,10 +1,10 @@
 name: CI - Build and Test
 
 on:
-  push:
-    branches: [ main, dev ]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
   backend-ci:
@@ -45,6 +45,12 @@ jobs:
         poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         
+    - name: Run security scan
+      working-directory: ./backend
+      run: |
+        poetry run bandit -r . -f json -o bandit-report.json || true
+        poetry run safety check --json --output safety-report.json || true
+        
     - name: Run tests
       working-directory: ./backend
       run: poetry run pytest tests/ -v --cov=. --cov-report=xml
@@ -82,6 +88,10 @@ jobs:
     - name: Run type checking
       working-directory: ./frontend
       run: npx tsc --noEmit
+      
+    - name: Run security audit
+      working-directory: ./frontend
+      run: npm audit --audit-level=moderate
       
     - name: Build application
       working-directory: ./frontend
