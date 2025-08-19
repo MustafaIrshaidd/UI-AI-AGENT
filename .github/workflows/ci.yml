@@ -27,6 +27,14 @@ jobs:
         virtualenvs-create: true
         virtualenvs-in-project: true
         
+    - name: Configure Poetry
+      working-directory: ./backend
+      run: |
+        echo "⚙️ Configuring Poetry..."
+        poetry config virtualenvs.create true
+        poetry config virtualenvs.in-project true
+        poetry config virtualenvs.prefer-active-python false
+        
     - name: Load cached venv
       id: cached-poetry-dependencies
       uses: actions/cache@v4
@@ -34,14 +42,58 @@ jobs:
         path: backend/.venv
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
         
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+    - name: Clear corrupted venv if needed
       working-directory: ./backend
-      run: poetry install --no-interaction --no-root
-      
+      run: |
+        if [ -d ".venv" ] && [ ! -f ".venv/bin/python" ]; then
+          echo "⚠️ Corrupted virtual environment detected, removing..."
+          rm -rf .venv
+        fi
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        echo "📦 Installing backend dependencies..."
+        # Always install dependencies to ensure dev tools are available
+        poetry install --no-interaction --no-root --with dev
+        
+        # Verify critical dev dependencies are available
+        echo "🔍 Verifying critical dependencies..."
+        if ! poetry run flake8 --version > /dev/null 2>&1; then
+          echo "❌ flake8 not found, attempting fallback installation..."
+          poetry add --group dev flake8
+        fi
+        
+        if ! poetry run bandit --version > /dev/null 2>&1; then
+          echo "❌ bandit not found, attempting fallback installation..."
+          poetry add --group dev bandit
+        fi
+        
+        if ! poetry run safety --version > /dev/null 2>&1; then
+          echo "❌ safety not found, attempting fallback installation..."
+          poetry add --group dev safety
+        fi
+        
+        if ! poetry run pytest --version > /dev/null 2>&1; then
+          echo "❌ pytest not found, attempting fallback installation..."
+          poetry add --group dev pytest pytest-cov
+        fi
+        
+        echo "✅ Dependencies installation completed"
+        
+    - name: Verify dev dependencies
+      working-directory: ./backend
+      run: |
+        echo "🔍 Verifying dev dependencies are installed..."
+        poetry run flake8 --version || echo "❌ flake8 not found"
+        poetry run bandit --version || echo "❌ bandit not found"
+        poetry run safety --version || echo "❌ safety not found"
+        poetry run pytest --version || echo "❌ pytest not found"
+        
     - name: Run linting
       working-directory: ./backend
       run: |
+        echo "🔍 Running backend linting..."
         poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         
